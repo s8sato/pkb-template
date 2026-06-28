@@ -1,6 +1,6 @@
 {
   "useMarkdownLinks": false,
-  "newLinkFormat": "absolute",
+  "newLinkFormat": "relative",
   "alwaysUpdateLinks": true,
   "attachmentFolderPath": "assets/public/images",
   "showUnsupportedFiles": true

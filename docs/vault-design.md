@@ -185,7 +185,7 @@ assets/private/
 公開ノートでは、Excalidraw から生成された `.svg` または `.png` を参照する。
 
 ```md
-![[assets/public/handwritten/output-speed.svg]]
+![[../assets/public/handwritten/output-speed.svg]]
 ```
 
 ## 6. Asset rules
@@ -246,7 +246,7 @@ assets/private/handwritten/raw-thought.svg
 公開ノートでは生成済み画像を参照する。
 
 ```md
-![[assets/public/handwritten/output-speed.svg]]
+![[../assets/public/handwritten/output-speed.svg]]
 ```
 
 Quartz / CI では `.excalidraw.md` を公開成果物から除外する。
