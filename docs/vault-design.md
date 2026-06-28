@@ -1,4 +1,4 @@
-# Obsidian Vault 仕様
+# Obsidian Vault 設計
 
 ## 1. 目的
 
