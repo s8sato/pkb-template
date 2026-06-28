@@ -16,6 +16,13 @@
  *   - reading/ ノート内の `## Kindle Highlights` セクション（Kindle ハイライト著作権保護）
  *     ※ ノート自体は公開できるが、当該セクションは公開コピーから機械的に除去する。
  *
+ * 未公開ノートへのリンク変換（公開コピーに対して）:
+ *   - `[[private-note]]` → plain text（リンクなし）
+ *   - `[[private-note|表示名]]` → 表示名（plain text）
+ *   - `![[private-note]]` embed → 除去
+ *   ※ 画像・アセット拡張子（png/jpg/svg/gif/webp/pdf）は変換しない。
+ *   ※ 変換が発生した場合は警告を出力するが、CI は失敗させない。
+ *
  * 公開前チェック（除去後の公開コピーに対して）:
  *   - assets/private への参照禁止
  *   - `*.excalidraw.md` の直接参照禁止
@@ -35,7 +42,7 @@ import {
   rmSync,
   existsSync,
 } from 'node:fs';
-import { join, dirname, relative } from 'node:path';
+import { join, dirname, relative, basename, extname } from 'node:path';
 
 const ROOT = process.cwd();
 const NOTE_DIRS = ['ideas', 'reading'];
@@ -97,6 +104,40 @@ function stripKindleHighlights(content) {
   return out;
 }
 
+/** アセット拡張子（wikilink 変換の対象外）。 */
+const ASSET_EXTS = new Set(['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp', '.pdf']);
+
+/**
+ * 公開コピーに含まれる wikilink のうち、未公開ノートを指すものを plain text に変換する。
+ * - `[[private-note]]` → `private-note`
+ * - `[[private-note|表示名]]` → `表示名`
+ * - `![[private-note]]` embed → 除去（空文字）
+ * - 画像・アセット拡張子は変換しない。
+ * @param {string} content
+ * @param {Set<string>} publishedStems
+ * @returns {{ content: string, warnings: string[] }}
+ */
+function stripPrivateWikilinks(content, publishedStems) {
+  const warnings = [];
+  const result = content.replace(
+    /(!?)\[\[([^\]\|#]+)(?:#[^\]\|]*)?((?:\|[^\]]*)?)\]\]/g,
+    (match, embed, target, displayPart) => {
+      const ext = extname(target.trim());
+      if (ASSET_EXTS.has(ext.toLowerCase())) return match;
+      const stem = basename(target.trim(), '.md');
+      if (publishedStems.has(stem)) return match;
+      const display = displayPart ? displayPart.slice(1) : stem;
+      if (embed) {
+        warnings.push(`embed 除去: ${match}`);
+        return '';
+      }
+      warnings.push(`link テキスト化: ${match} → ${display}`);
+      return display;
+    },
+  );
+  return { content: result, warnings };
+}
+
 function copyInto(out, rel) {
   const dest = join(out, rel);
   mkdirSync(dirname(dest), { recursive: true });
@@ -143,6 +184,14 @@ function main() {
     console.error('公開前チェックに失敗しました:');
     for (const e of errors) console.error(`  - ${e}`);
     process.exit(1);
+  }
+
+  // 未公開ノートへの wikilink を plain text に変換する。
+  const publishedStems = new Set(publishedNotes.map((n) => basename(n.rel, '.md')));
+  for (const note of publishedNotes) {
+    const { content, warnings } = stripPrivateWikilinks(note.content, publishedStems);
+    note.content = content;
+    for (const w of warnings) console.warn(`  警告 [${note.rel}] ${w}`);
   }
 
   // staging を作り直す。
