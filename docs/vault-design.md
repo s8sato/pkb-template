@@ -14,8 +14,8 @@ public repository:
   pkb-site
 ```
 
-`pkb` は Obsidian Vault 本体を管理する。
-`pkb-site` は Quartz の生成物のみを公開する。
+`pkb` は Obsidian Vault 本体（private）を管理する。
+`pkb-site` は Quartz (v5) のサイトリポジトリ（public）。`pkb` の CI が公開ノートと公開 asset のみを `pkb-site` の `content/` へ同期し、`pkb-site` が Quartz build と GitHub Pages 公開を担う。
 
 ## 3. Directory structure
 
@@ -36,11 +36,13 @@ pkb/
   .github/
     workflows/
 
-  quartz.config.ts
-  package.json
+  scripts/
+
   .gitignore
   README.md
 ```
+
+Quartz の設定（`quartz.config.yaml` / `package.json`）は `pkb` ではなく `pkb-site` 側に置く。`scripts/` には `pkb` から `pkb-site` へ公開対象を抽出・同期するスクリプトを置く。
 
 ## 4. Directory roles
 
@@ -251,7 +253,7 @@ Quartz / CI では `.excalidraw.md` を公開成果物から除外する。
 
 ## 8. Quartz
 
-Quartz は静的サイト生成ツールとして使用する。
+Quartz (v5) を静的サイト生成ツールとして使用する。Quartz 本体・設定（`quartz.config.yaml` / `package.json`）は `pkb-site` リポジトリに置き、コンテンツは `pkb-site` の `content/` 配下で扱う。
 
 ```text
 Markdown / assets
@@ -261,15 +263,17 @@ Quartz build
 HTML / CSS / JS
 ```
 
-Quartz の生成物は `pkb-site` public repository に push する。
+公開フローは「pkb で抽出 → pkb-site で build・公開」の 2 リポジトリ構成とする。`pkb` の CI が公開ノート（`publish: true`）と公開 asset（`assets/public/`）のみを抽出し、`pkb-site` の `content/` へ同期する。非公開ノートや `assets/private/`、`*.excalidraw.md` は同期しない。
 
 ```text
 pkb private repository
-  ↓
-Quartz build
-  ↓
+  ideas / reading / assets
+  ↓ CI: 公開対象のみ抽出（フィルタ）
 pkb-site public repository
-  ↓
+  content/
+  ↓ npx quartz build
+  public/（生成物）
+  ↓ GitHub Actions
 GitHub Pages
 ```
 
@@ -281,24 +285,18 @@ GitHub Pages
 バックリンク (Backlinks)
 エクスプローラ / 目次によるナビゲーション
 ```
-## 9. Build スクリプト
-```json
-{
-  "scripts": {
-    "preview": "quartz build --serve",
-    "build": "quartz build"
-  },
-  "dependencies": {
-    "@quartz-org/quartz": "latest"
-  }
-}
-```
 
-実行コマンド：
+## 9. Build スクリプト
+
+Quartz v5 はリポジトリ（`pkb-site`）をクローンして使う。`package.json` と `quartz.config.yaml` は `pkb-site` 側に置く。
+
+`pkb-site` での実行コマンド：
 
 ```bash
-npm run preview
-npm run build
+npm ci                      # 依存をインストール
+npx quartz plugin install   # lockfile からプラグインを導入
+npx quartz build --serve    # ローカルプレビュー
+npx quartz build            # 本番ビルド（public/ を生成）
 ```
 
 ## 10. `.gitignore`
@@ -309,10 +307,6 @@ npm run build
 # Node
 node_modules/
 
-# Quartz
-public/
-.quartz-cache/
-
 # Obsidian workspace state
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
@@ -321,7 +315,7 @@ public/
 .DS_Store
 ```
 
-`.obsidian/` 全体は ignore しない。
+`.obsidian/` 全体は ignore しない。Quartz のビルド成果物（`public/` / `.quartz-cache/`）は `pkb` ではなく `pkb-site` 側の `.gitignore` で扱う。
 
 ## 11. Obsidian plugins
 
@@ -367,12 +361,13 @@ Kindle Highlights / Readwise 系 plugin
 → Markdown に publish: true を付ける
 → 参照 asset が assets/public/ 配下のみであることを確認する
 → .excalidraw.md を直接参照していないことを確認する
-→ Quartz build
-→ pkb-site に生成物だけ push
-→ GitHub Pages で公開する
+→ pkb に push（CI が公開対象のみを pkb-site の content/ へ同期）
+→ pkb-site が Quartz build → GitHub Pages で公開する
 ```
 
 ## 13. Pre-publish checks
+
+これらは CI の同期・ビルド時に実行する。同期前に `pkb` 側の公開対象を、ビルド後に `pkb-site` の生成物 `public/` を検査する。
 
 ```bash
 # 公開成果物に private というパスが混ざっていないか
