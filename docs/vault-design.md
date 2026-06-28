@@ -88,7 +88,7 @@ reading/
 - [[ideas/アウトプット速度]]
 - [[ideas/イシュー設定]]
 
-## Kindle highlights
+## Kindle Highlights
 
 - ...
 ```

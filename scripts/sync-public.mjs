@@ -15,6 +15,7 @@
  *   - すべての `*.excalidraw.md`
  *
  * 公開前チェック（公開対象ノートに対して）:
+ *   - reading/ のノートは公開禁止（Kindle ハイライト著作権保護）
  *   - assets/private への参照禁止
  *   - `*.excalidraw.md` の直接参照禁止
  * 違反があれば何も書き出さず exit 1。
@@ -85,7 +86,11 @@ function main() {
       if (!rel.endsWith('.md')) continue;
       const content = readFileSync(join(ROOT, rel), 'utf8');
       if (!hasPublishTrue(content)) continue;
-      if (/assets[\\/]+private/.test(content)) {
+      if (/^reading[\/]/.test(rel)) {
+        errors.push(`${rel}: reading/ のノートは Kindle ハイライト著作権保護のため公開禁止`);
+        continue;
+      }
+      if (/assets[\/]+private/.test(content)) {
         errors.push(`${rel}: 公開ノートが assets/private を参照している`);
       }
       if (/\.excalidraw\.md/.test(content)) {

@@ -1,0 +1,13 @@
+{
+  "amazonRegion": "japan",
+  "highlightsFolder": "reading",
+  "lastSyncMode": "amazon",
+  "hasStartedSync": false,
+  "isLoggedIn": false,
+  "syncOnBoot": false,
+  "downloadBookMetadata": true,
+  "ignoredBooks": [],
+  "fileNameTemplate": "{{title}}_{{publicationDate}}",
+  "fileTemplate": "# {{longTitle}}\n\n[Amazon]({{url}})\n\n## Links\n\n## Kindle Highlights\n\n{{highlights}}",
+  "highlightTemplate": null
+}

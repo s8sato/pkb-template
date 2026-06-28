@@ -11,5 +11,10 @@ node_modules/
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 
+# Compiled Obsidian plugin files (install via Community plugins; data.json is committed)
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/manifest.json
+.obsidian/plugins/*/styles.css
+
 # OS
 .DS_Store
