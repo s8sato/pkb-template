@@ -13,9 +13,10 @@
  *   - publish 指定のない Markdown
  *   - assets/private/ 配下すべて
  *   - すべての `*.excalidraw.md`
+ *   - reading/ ノート内の `## Kindle Highlights` セクション（Kindle ハイライト著作権保護）
+ *     ※ ノート自体は公開できるが、当該セクションは公開コピーから機械的に除去する。
  *
- * 公開前チェック（公開対象ノートに対して）:
- *   - reading/ のノートは公開禁止（Kindle ハイライト著作権保護）
+ * 公開前チェック（除去後の公開コピーに対して）:
  *   - assets/private への参照禁止
  *   - `*.excalidraw.md` の直接参照禁止
  * 違反があれば何も書き出さず exit 1。
@@ -28,6 +29,7 @@ import {
   readdirSync,
   statSync,
   readFileSync,
+  writeFileSync,
   mkdirSync,
   copyFileSync,
   rmSync,
@@ -70,33 +72,66 @@ function hasPublishTrue(content) {
   return /^\s*publish:\s*true\s*$/m.test(fm);
 }
 
+/**
+ * reading/ ノートから `## Kindle Highlights` セクションを除去する。
+ * 見出し行から、次の同位/上位見出し（level <= 2: `# ` または `## `）または
+ * 文末までを削除する。`### ` 以下のより深い見出しは当該セクションの一部として除去する。
+ */
+function stripKindleHighlights(content) {
+  const lines = content.split('\n');
+  const start = lines.findIndex((l) => /^##\s+Kindle Highlights\s*$/.test(l));
+  if (start === -1) return content;
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^#{1,2}\s/.test(lines[i])) {
+      end = i;
+      break;
+    }
+  }
+  // セクション直前の空行も巻き込んで削除し、余分な空行を残さない。
+  let from = start;
+  while (from > 0 && lines[from - 1].trim() === '') from--;
+  lines.splice(from, end - from);
+  let out = lines.join('\n');
+  if (!out.endsWith('\n')) out += '\n';
+  return out;
+}
+
 function copyInto(out, rel) {
   const dest = join(out, rel);
   mkdirSync(dirname(dest), { recursive: true });
   copyFileSync(join(ROOT, rel), dest);
 }
 
+/** 変換後のノート本文を staging へ書き出す。 */
+function writeNote(out, rel, content) {
+  const dest = join(out, rel);
+  mkdirSync(dirname(dest), { recursive: true });
+  writeFileSync(dest, content, 'utf8');
+}
+
 function main() {
   const { out } = parseArgs(process.argv.slice(2));
   const errors = [];
+  /** @type {{ rel: string, content: string }[]} */
   const publishedNotes = [];
 
   for (const dir of NOTE_DIRS) {
     for (const rel of walk(dir)) {
       if (!rel.endsWith('.md')) continue;
-      const content = readFileSync(join(ROOT, rel), 'utf8');
-      if (!hasPublishTrue(content)) continue;
-      if (/^reading[\/]/.test(rel)) {
-        errors.push(`${rel}: reading/ のノートは Kindle ハイライト著作権保護のため公開禁止`);
-        continue;
-      }
+      const raw = readFileSync(join(ROOT, rel), 'utf8');
+      if (!hasPublishTrue(raw)) continue;
+      // reading/ ノートは Kindle ハイライト著作権保護のため
+      // `## Kindle Highlights` セクションを公開コピーから除去する。
+      const content = /^reading[\/]/.test(rel) ? stripKindleHighlights(raw) : raw;
+      // 参照チェックは除去後の公開コピーに対して行う。
       if (/assets[\/]+private/.test(content)) {
         errors.push(`${rel}: 公開ノートが assets/private を参照している`);
       }
       if (/\.excalidraw\.md/.test(content)) {
         errors.push(`${rel}: 公開ノートが *.excalidraw.md を直接参照している`);
       }
-      publishedNotes.push(rel);
+      publishedNotes.push({ rel, content });
     }
   }
 
@@ -118,13 +153,13 @@ function main() {
     mkdirSync(join(outAbs, d), { recursive: true });
   }
 
-  for (const rel of publishedNotes) copyInto(out, rel);
+  for (const note of publishedNotes) writeNote(out, note.rel, note.content);
   for (const rel of assetFiles) copyInto(out, rel);
 
   console.log(
     `公開対象を ${out}/ へ書き出しました: ノート ${publishedNotes.length} 件 / asset ${assetFiles.length} 件`,
   );
-  for (const rel of publishedNotes) console.log(`  note  ${rel}`);
+  for (const note of publishedNotes) console.log(`  note  ${note.rel}`);
   for (const rel of assetFiles) console.log(`  asset ${rel}`);
 }
 

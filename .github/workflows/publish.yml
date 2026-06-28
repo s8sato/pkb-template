@@ -60,6 +60,9 @@ jobs:
           if find . -ipath '*private*' -print -quit | grep -q . ; then
             echo '::error::content に private パスが混入しています'; fail=1
           fi
+          if grep -rIl '^## Kindle Highlights' . ; then
+            echo '::error::content に Kindle Highlights セクションが混入しています'; fail=1
+          fi
           exit $fail
 
       - name: Commit & push to pkb-site

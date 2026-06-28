@@ -50,10 +50,12 @@ pkb-site/  … public repository（Quartz v5 サイト。別途作成）
 - 公開ノートが参照してよい asset は `assets/public/` 配下のみ。`assets/private/` は参照しない。
 - 公開ノートは Excalidraw 編集元（`*.excalidraw.md`）を直接参照せず、生成された `.svg` / `.png` を参照する。
 - これらは `scripts/sync-public.mjs` と CI が機械的に検査する（違反時はビルドを止める）。
-- **`reading/` のノートには `publish: true` を付けない。**
+- **`reading/` のノートは `publish: true` にできるが、`## Kindle Highlights` セクションは公開時に除外される。**
   Kindle ハイライトの公開配布は著作権法上の「引用」要件（主従関係・必然性）を満たしにくく、
-  Amazon の利用規約も個人使用に限定している。本から得た自分の考察・メモは `ideas/` に書き、
-  `reading/` はハイライトの私的保管専用とする。違反時は `sync-public.mjs` と CI がビルドを止める。
+  Amazon の利用規約も個人使用に限定している。そこで `reading/` ノートを公開しても、
+  `## Kindle Highlights` セクション（見出しから次の見出しまで）は `sync-public.mjs` が自動で取り除く。
+  本から得た自分の考察・メモ（`## Notes` / `## Links`）だけが公開され、ハイライト本文は私的保管に留まる。
+  万一の除去漏れに備え、CI も公開成果物に同セクションが残っていないかを検査してビルドを止める。
 
 ローカルでの抽出確認:
 

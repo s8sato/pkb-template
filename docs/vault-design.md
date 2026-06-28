@@ -66,7 +66,8 @@ ideas/
 
 読書メモを置く。
 
-Kindle ハイライト同期ノートも `reading/` に置く。
+Kindle ハイライト同期ノートも `reading/` に置く。`reading/` ノートは `publish: true` にできるが、
+`## Kindle Highlights` セクションは著作権保護のため公開時に除去される（§8, §13）。
 
 ```text
 reading/
@@ -263,7 +264,7 @@ Quartz build
 HTML / CSS / JS
 ```
 
-公開フローは「pkb で抽出 → pkb-site で build・公開」の 2 リポジトリ構成とする。`pkb` の CI が公開ノート（`publish: true`）と公開 asset（`assets/public/`）のみを抽出し、`pkb-site` の `content/` へ同期する。非公開ノートや `assets/private/`、`*.excalidraw.md` は同期しない。
+公開フローは「pkb で抽出 → pkb-site で build・公開」の 2 リポジトリ構成とする。`pkb` の CI が公開ノート（`publish: true`）と公開 asset（`assets/public/`）のみを抽出し、`pkb-site` の `content/` へ同期する。非公開ノートや `assets/private/`、`*.excalidraw.md` は同期しない。また `reading/` ノートの `## Kindle Highlights` セクションは、ノートを公開しても著作権保護のため抽出時に除去する。
 
 ```text
 pkb private repository
@@ -384,6 +385,9 @@ rg "assets/private" .
 
 # 公開ノートが Excalidraw 編集元を直接参照していないか
 rg "\.excalidraw\.md" ideas reading
+
+# 公開成果物に Kindle Highlights セクションが残っていないか
+rg "^## Kindle Highlights" public
 ```
 
 ## 14. 検索
