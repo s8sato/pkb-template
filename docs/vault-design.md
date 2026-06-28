@@ -88,6 +88,29 @@ reading/
 - [[ideas/イシュー設定]]
 ```
 
+### Web クリップ
+
+Web ページからのテキスト抜粋・コピー&ペーストは、思考の断片として `ideas/` に Markdown ノートとして保存する。引用元 URL を本文に併記する。
+
+```md
+# 記事タイトルからの抜粋
+
+> 引用したテキスト
+
+出典: https://example.com/article
+
+## Notes
+
+- 自分のコメント
+```
+
+Web ページ由来の画像は asset として保存し、公開可否に応じて配置先を分ける。
+
+```text
+assets/public/images/   公開してよい Web 画像
+assets/private/images/  非公開の Web 画像
+```
+
 ### `assets/public/images/`
 
 公開してよい通常画像を置く。
@@ -247,16 +270,15 @@ pkb-site public repository
 GitHub Pages
 ```
 
-Quartz / CI では以下を除外する。
+公開サイトでは、閲覧性・検索性・ナビゲーション性を高めるため、Quartz の以下の機能を有効にする。
 
 ```text
-assets/private/**
-**/*.excalidraw.md
+全文検索 (Search)
+グラフビュー (Graph)
+バックリンク (Backlinks)
+エクスプローラ / 目次によるナビゲーション
 ```
 
-## 9. `package.json`
-
-Quartz の依存関係と実行コマンドを管理する。
 
 ```json
 {
@@ -307,13 +329,15 @@ public/
 Excalidraw
 Linter
 Templater
+QuickAdd
 ```
+
+QuickAdd は、ホットキーからの即時キャプチャ（予備動作・心理的抵抗の最小化）に用いる。
 
 必要になったら検討する plugin：
 
 ```text
 Dataview
-QuickAdd
 Advanced URI
 Obsidian Git
 Kindle Highlights / Readwise 系 plugin
@@ -323,7 +347,7 @@ Kindle Highlights / Readwise 系 plugin
 
 ```text
 思いつく
-→ ideas/ に書く
+→ QuickAdd のホットキーで即時に ideas/ へ記録する
 
 読む
 → Kindle ハイライトを reading/ に同期
@@ -362,3 +386,35 @@ rg "assets/private" .
 # 公開ノートが Excalidraw 編集元を直接参照していないか
 rg "\.excalidraw\.md" ideas reading
 ```
+
+## 14. 検索
+
+知識ベース全体の検索性を確保する。
+
+```text
+Obsidian:
+  標準の全文検索・タグ検索・リンク検索を用いる。
+  Vault 全体を対象に、本文・タイトル・リンクを横断して検索する。
+
+公開サイト:
+  Quartz の全文検索を用いる。
+```
+
+特別なファイル形式やデータベースを導入せず、プレーンテキスト Markdown のままで検索可能な状態を保つ。
+
+## 15. AI 親和性
+
+Vault 全体を、AI による読み取り・編集に適した状態に保つ。
+
+```text
+形式:
+  すべてのノートをプレーンテキスト Markdown で保存する。
+
+構造:
+  ディレクトリ構成と frontmatter を一貫させ、機械的に解釈しやすくする。
+
+パス:
+  リンクや asset 参照のパスを安定させ、移動・改名を最小限にする。
+```
+
+これにより、AI が Vault 全体を文脈として読み取り、ノートの追記・リンク提案・整理を行いやすくする。
