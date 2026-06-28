@@ -227,7 +227,7 @@ GitHub 無料個人プランを前提とし、Vault 本体は private repository
 
 ### N-006
 
-公開可否は、Markdown では frontmatter、asset ではディレクトリ境界で管理すること。
+公開可否を、ノートと asset それぞれについて、機械的に判定できる形で管理できること。
 
 ## 6.4 継続性
 
@@ -270,14 +270,6 @@ Linux 上での Obsidian および Excalidraw 利用を前提とする。
 ### C-003: iPad / Freeform 非採用
 
 初期構成では iPad + Freeform を採用しない。
-
-### C-004: Quartz 利用
-
-静的サイト生成には Quartz を使用する。
-
-### C-005: GitHub Pages 利用
-
-公開先ホスティングには GitHub Pages を使用する。
 
 ## 8. 関連文書
 

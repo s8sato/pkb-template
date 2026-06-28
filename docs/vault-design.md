@@ -2,7 +2,7 @@
 
 ## 1. 目的
 
-個人のアイデア、読書メモ、手書き図解、知識リンクを Obsidian Vault として管理し、選択したコンテンツのみを Quartz 経由で静的サイトとして公開する。
+本書は設計（How）を定義する。目的・要求の全体像は [requirements.md](requirements.md) を正本とする。
 
 ## 2. Repository
 
@@ -278,8 +278,7 @@ GitHub Pages
 バックリンク (Backlinks)
 エクスプローラ / 目次によるナビゲーション
 ```
-
-
+## 9. Build スクリプト
 ```json
 {
   "scripts": {

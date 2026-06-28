@@ -39,14 +39,14 @@
 ## 3. 静的サイト生成・公開
 
 **採用: Quartz で静的サイトを生成し、GitHub Pages で公開する。Vault 本体は private（`pkb`）、生成物のみ public（`pkb-site`）の 2 リポジトリ分割とする。**
-→ 関連: R-018, R-019, F-011, F-012, N-011, C-001, C-004, C-005 / §2, §8
+→ 関連: R-018, R-019, F-011, F-012, N-011, C-001 / §2, §8
 
 | 対象 | 判断 | 根拠 | 関連 |
 | --- | --- | --- | --- |
 | Docusaurus / Astro Starlight / Material for MkDocs を主系にする | 却下 | 整った技術ドキュメントサイトには強いが、デジタルガーデン・wikilink / backlink / graph 運用では Quartz のほうが素直。[1] | R-006, N-011 / §8 |
 | Obsidian Publish | 却下 | 公開は楽だが、有料の独自ホスティングで、無料 GitHub Pages＋private repo からの選択公開（C-001, R-019）と噛み合わない。 | R-019, C-001 |
 | private repo から直接 GitHub Pages 公開 | 却下 | 無料個人プランでは Pages は public repository が対象。よって `pkb` から直接出さず、生成物だけを `pkb-site` に出す。[2] | R-019, C-001 / §2 |
-| Cloudflare Pages + Access を初期採用 | 保留 | 認証付き公開が必要になれば有力。現時点では GitHub Pages で十分。 | C-005 |
+| Cloudflare Pages + Access を初期採用 | 保留 | 認証付き公開が必要になれば有力。現時点では GitHub Pages で十分。 | R-019, C-001 |
 
 ## 4. 公開制御
 
@@ -91,7 +91,7 @@
 ## 8. 運用ツール分担
 
 **採用: 日常の知識作成は Obsidian、Git / Quartz / CI / 一括置換などの整備は VS Code・terminal に分離する。README は入口に留め、詳細は requirements.md / vault-design.md に置く。**
-→ 関連: R-001, R-013, N-004 / §9, §10, §13
+→ 関連: R-001, R-013, N-004 / §11, §12, §13
 
 | 対象 | 判断 | 根拠 | 関連 |
 | --- | --- | --- | --- |
