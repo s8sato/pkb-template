@@ -93,6 +93,35 @@ node scripts/sync-public.mjs --out .sync-staging
 > CI は公開ノートと公開 asset を `pkb-site` の `content/` へ**同期**するだけで、サイトの
 > **生成（build）と公開（Pages デプロイ）は `pkb-site` 側**が担う。
 
+## Quartz v5 の既知の問題と対処
+
+### `content/index.md` に `publish: true` が必要
+
+Quartz の **ExplicitPublish** フィルタを有効にすると、`content/index.md` もフィルタ対象になる。
+`publish: true` を付けない場合、サイトのルート（`/`）が空になり RSS フィードが表示される。
+
+**対処**: `content/index.md` の frontmatter に `publish: true` を追加する。
+
+```md
+---
+title: （サイト名）
+publish: true
+---
+```
+
+### `pkb-site` の `.gitignore` が `content/assets/public/` を無視する
+
+Quartz のデフォルト `.gitignore` は `public`（アンカーなし）を除外パターンに含む。
+これはビルド出力の `public/` ディレクトリを除外する意図だが、
+`content/assets/public/` も一致して無視されるため、asset が git に追加されない。
+
+**対処**: `.gitignore` の `public` を `/public`（ルートアンカー付き）に変更する。
+
+```diff
+-public
++/public
+```
+
 ## ライセンス / 公開範囲
 
 `pkb` 本体は private。`pkb-site` には `publish: true` を付けた公開対象のみが配置される。
