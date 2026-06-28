@@ -1,0 +1,77 @@
+name: Sync published content to pkb-site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ideas/**'
+      - 'reading/**'
+      - 'assets/public/**'
+      - 'scripts/**'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pkb (private vault)
+        uses: actions/checkout@v4
+        with:
+          path: pkb
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build publish staging (filter + pre-publish checks)
+        working-directory: pkb
+        run: node scripts/sync-public.mjs --out ../.sync-staging
+
+      - name: Checkout pkb-site (public Quartz repo)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/pkb-site
+          token: ${{ secrets.PKB_SITE_TOKEN }}
+          path: pkb-site
+
+      - name: Sync managed dirs into pkb-site/content
+        run: |
+          mkdir -p pkb-site/content
+          rsync -a --delete .sync-staging/ideas/   pkb-site/content/ideas/
+          rsync -a --delete .sync-staging/reading/  pkb-site/content/reading/
+          rsync -a --delete .sync-staging/assets/   pkb-site/content/assets/
+
+      - name: Post-sync safety checks
+        working-directory: pkb-site/content
+        shell: bash
+        run: |
+          fail=0
+          if grep -rIl 'assets/private' . ; then
+            echo '::error::content に assets/private 参照が混入しています'; fail=1
+          fi
+          if find . -iname '*.excalidraw.md' -print -quit | grep -q . ; then
+            echo '::error::content に *.excalidraw.md が混入しています'; fail=1
+          fi
+          if find . -ipath '*private*' -print -quit | grep -q . ; then
+            echo '::error::content に private パスが混入しています'; fail=1
+          fi
+          exit $fail
+
+      - name: Commit & push to pkb-site
+        working-directory: pkb-site
+        shell: bash
+        run: |
+          git config user.name 'pkb-sync[bot]'
+          git config user.email 'pkb-sync@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes to publish.'
+          else
+            git commit -m "sync: publish content from pkb@${GITHUB_SHA::7}"
+            git push
+          fi
