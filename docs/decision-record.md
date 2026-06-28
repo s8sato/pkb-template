@@ -95,7 +95,7 @@
 
 | 対象 | 判断 | 根拠 | 関連 |
 | --- | --- | --- | --- |
-| VS Code を執筆母艦にする | 却下 | リンク・図解・思考集中の執筆体験は Obsidian が優れるため、日常の知識作成は Obsidian を主にし、VS Code は Git / Quartz / CI 整備に充てる。 | R-001 |
+| VS Code を執筆母艦にする | 却下 | テキスト編集効率は VS Code が優位だが、ここでの「執筆」は文章を打ち込む行為ではなく、wikilink / backlink / 図解で知識を繋ぎながら考える行為と定義する。後者の体験は Obsidian が優れるため、日常の知識作成は Obsidian を主にし、テキスト編集効率を要する一括置換や Git / Quartz / CI 整備は VS Code に充てる。 | R-001 |
 | Obsidian 内に terminal 運用を寄せる | 却下 | 思考中に運用作業が混ざるため、terminal は VS Code / shell 側に分離する。 | R-001, N-004 |
 | README に長い仕様書を置く | 却下 | README は repo の入口に留め、詳細は `docs/requirements.md`（要求）と `docs/vault-design.md`（設計）に置くほうが見通しがよい。 | N-004 |
 | Obsidian Git plugin を初期必須にする | 保留 | Obsidian 内で完結した同期が必要になれば有力。現時点では Git は VS Code / terminal に分離し、Obsidian は思考・リンク・図解に集中させる。 | R-013 |
