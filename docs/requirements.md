@@ -256,106 +256,14 @@ Linux 上での Obsidian および Excalidraw 利用を前提とする。
 
 公開先ホスティングには GitHub Pages を使用する。
 
-## 8. 推奨ディレクトリ構成
+## 8. 関連文書
 
-```text
-pkb/
-  ideas/
-  reading/
+本書は要求（何を満たすべきか）を定義する。具体的な実現方法は以下の文書で定義する。
 
-  assets/
-    public/
-      images/
-      handwritten/
-    private/
-      images/
-      handwritten/
+* 設計（ディレクトリ構成、公開ルールの具体記法、公開フロー、公開前チェック、ツール設定）: [vault-design.md](vault-design.md)
+* 採否の根拠（採用しなかった選択肢とその理由）: [decision-record.md](decision-record.md)
 
-  .obsidian/
-  .github/
-    workflows/
-
-  quartz.config.ts
-  package.json
-  .gitignore
-  README.md
-  docs/
-    vault-spec.md
-    decision-record.md
-```
-
-## 9. 公開ルール
-
-### 9.1 Markdown
-
-公開する Markdown のみ、以下を付与する。
-
-```md
----
-publish: true
----
-
-# ノートタイトル
-```
-
-### 9.2 Asset
-
-公開ノートから参照してよい asset は以下のみとする。
-
-```text
-assets/public/
-```
-
-公開ノートから以下を参照してはならない。
-
-```text
-assets/private/
-```
-
-### 9.3 Excalidraw
-
-公開ノートでは `.excalidraw.md` を直接参照しない。
-
-公開ノートでは、Excalidraw から生成された `.svg` または `.png` を参照する。
-
-```md
-![[assets/public/handwritten/output-speed.svg]]
-```
-
-## 10. 公開フロー
-
-```text
-1. ideas/ または reading/ に Markdown を作成する
-2. 必要に応じてノート間リンクを追加する
-3. 必要に応じて Excalidraw で図解を作成する
-4. 公開してよい asset を assets/public/ に置く
-5. 公開する Markdown に publish: true を付ける
-6. 公開前チェックを行う
-7. Quartz build を実行する
-8. 生成物を pkb-site に push する
-9. GitHub Pages で公開する
-```
-
-## 11. 公開前チェック
-
-```bash
-# 公開成果物に private というパスが混ざっていないか
-find public -iname '*private*'
-
-# 公開成果物に .excalidraw.md が混ざっていないか
-find public -iname '*.excalidraw.md'
-
-# 公開成果物に出したくない語が混ざっていないか
-rg "private|非公開|career|journal|raw" public
-
-# 公開ノートが private assets を参照していないか
-rg "assets/private" .
-
-# 公開ノートが Excalidraw 編集元を直接参照していないか
-rg "\.excalidraw\.md" ideas reading
-```
-
-## 12. 受け入れ基準
+## 9. 受け入れ基準
 
 ### A-001
 
