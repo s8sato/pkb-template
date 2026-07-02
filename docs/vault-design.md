@@ -189,6 +189,8 @@ assets/private/
 ![[../assets/public/handwritten/output-speed.svg]]
 ```
 
+公開ノートに非公開ノートへの `[[wikilink]]` や `![[embed]]` が含まれる場合、抽出時に自動で除去する。除去後に空になったリスト行も合わせて削除する。画像・アセット拡張子（`.png` / `.jpg` / `.svg` / `.gif` / `.webp` / `.pdf`）は対象外。
+
 ## 6. Asset rules
 
 `assets/` 以下では、公開可否を最上位の境界にする。

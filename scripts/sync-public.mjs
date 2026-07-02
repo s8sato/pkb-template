@@ -17,8 +17,8 @@
  *     ※ ノート自体は公開できるが、当該セクションは公開コピーから機械的に除去する。
  *
  * 未公開ノートへのリンク変換（公開コピーに対して）:
- *   - `[[private-note]]` → plain text（リンクなし）
- *   - `[[private-note|表示名]]` → 表示名（plain text）
+ *   - `[[private-note]]` → 除去
+ *   - `[[private-note|表示名]]` → 除去
  *   - `![[private-note]]` embed → 除去
  *   ※ 画像・アセット拡張子（png/jpg/svg/gif/webp/pdf）は変換しない。
  *   ※ 変換が発生した場合は警告を出力するが、CI は失敗させない。
@@ -108,9 +108,9 @@ function stripKindleHighlights(content) {
 const ASSET_EXTS = new Set(['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp', '.pdf']);
 
 /**
- * 公開コピーに含まれる wikilink のうち、未公開ノートを指すものを plain text に変換する。
- * - `[[private-note]]` → `private-note`
- * - `[[private-note|表示名]]` → `表示名`
+ * 公開コピーに含まれる wikilink のうち、未公開ノートを指すものを除去する。
+ * - `[[private-note]]` → 除去（空文字）
+ * - `[[private-note|表示名]]` → 除去（空文字）
  * - `![[private-note]]` embed → 除去（空文字）
  * - 画像・アセット拡張子は変換しない。
  * @param {string} content
@@ -126,16 +126,18 @@ function stripPrivateWikilinks(content, publishedStems) {
       if (ASSET_EXTS.has(ext.toLowerCase())) return match;
       const stem = basename(target.trim(), '.md');
       if (publishedStems.has(stem)) return match;
-      const display = displayPart ? displayPart.slice(1) : stem;
-      if (embed) {
-        warnings.push(`embed 除去: ${match}`);
-        return '';
-      }
-      warnings.push(`link テキスト化: ${match} → ${display}`);
-      return display;
+      warnings.push(`除去: ${match}`);
+      return '';
     },
   );
-  return { content: result, warnings };
+  // リンク除去後に空になったリスト行（`- ` や `* ` のみ残る等）を削除し、
+  // 連続する空行を最大 1 行に縮める。
+  const cleaned = result
+    .split('\n')
+    .filter((line) => !/^\s*[-*+]\s*$/.test(line))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n');
+  return { content: cleaned.endsWith('\n') ? cleaned : cleaned + '\n', warnings };
 }
 
 function copyInto(out, rel) {

@@ -49,6 +49,7 @@ pkb-site/  … public repository（Quartz v5 サイト。別途作成）
 - `publish: true` のない Markdown は公開されない（非公開がデフォルト）。
 - 公開ノートが参照してよい asset は `assets/public/` 配下のみ。`assets/private/` は参照しない。
 - 公開ノートは Excalidraw 編集元（`*.excalidraw.md`）を直接参照せず、生成された `.svg` / `.png` を参照する。
+- 公開ノートに非公開ノートへの `[[wikilink]]` や `![[embed]]` が含まれる場合、sync 時に自動で除去される。
 - これらは `scripts/sync-public.mjs` と CI が機械的に検査する（違反時はビルドを止める）。
 - **`reading/` のノートは `publish: true` にできるが、`## Kindle Highlights` セクションは公開時に除外される。**
   Kindle ハイライトの公開配布は著作権法上の「引用」要件（主従関係・必然性）を満たしにくく、
